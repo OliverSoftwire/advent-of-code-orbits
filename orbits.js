@@ -54,9 +54,39 @@ class Map {
 	}
 }
 
-const map = new Map();
+function runTests() {
+	const rawTestJson = fs.readFileSync("./tests.json");
+	const tests = JSON.parse(rawTestJson);
 
-const rawMapData = fs.readFileSync("./tests/invalid.txt");
-map.parse(rawMapData);
+	console.log(`Running ${tests.length} tests...`);
 
-console.log(map.checksum());
+	let numPasses = 0;
+
+	tests.forEach(test => {
+		const map = new Map();
+
+		const rawMapData = fs.readFileSync(`./tests/${test.name}.txt`);
+		map.parse(rawMapData);
+
+		let passed = false;
+
+		let checksum;
+		try {
+			checksum = map.checksum();
+			passed = checksum === test.checksum;
+		} catch {
+			checksum = -1;
+			passed = test.checksum === -1;
+		}
+
+		if (passed) {
+			numPasses++;
+		}
+
+		console.log(`Name: ${test.name} | Expected Output: ${test.checksum} | Actual Output: ${checksum} => ${passed ? "Passed!" : "Failed"}`);
+	});
+
+	console.log(`${numPasses}/${tests.length} tests passed (${Math.round(numPasses / tests.length * 100)}%)`);
+}
+
+runTests();
