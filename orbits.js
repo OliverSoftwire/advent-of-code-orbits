@@ -17,7 +17,7 @@ class Map {
 	}
 
 	parse(data) {
-		const orbitPattern = /([a-zA-Z]+)\)([a-zA-Z]+)/g;
+		const orbitPattern = /([a-zA-Z0-9]+)\)([a-zA-Z0-9]+)/g;
 
 		const matches = data.toString().matchAll(orbitPattern);
 		for (const match of matches) {
@@ -89,4 +89,11 @@ function runTests() {
 	console.log(`${numPasses}/${tests.length} tests passed (${Math.round(numPasses / tests.length * 100)}%)`);
 }
 
-runTests();
+//runTests();
+
+const map = new Map();
+
+const rawMapData = fs.readFileSync(`./tests/question.txt`);
+map.parse(rawMapData);
+
+console.log(map.checksum());
