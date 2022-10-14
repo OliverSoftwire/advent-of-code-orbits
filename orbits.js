@@ -52,6 +52,38 @@ class Map {
 
 		return totalOrbits;
 	}
+
+	transfers(start, end) {
+		if (!this.orbits.hasOwnProperty(start)) {
+			throw "Start point doesn't exist";
+		}
+		if (!this.orbits.hasOwnProperty(end)) {
+			throw "End point doesn't exist";
+		}
+
+		const startHopsToCOM = this.computeOrbitsForBody(start);
+		const endHopsToCOM = this.computeOrbitsForBody(end);
+
+		const startIsCloser = startHopsToCOM < endHopsToCOM;
+		const extraHops = Math.abs(startHopsToCOM - endHopsToCOM);
+
+		let nearest = startIsCloser ? start : end;
+		let furthest = startIsCloser ? end : start;
+		let hops = 0;
+
+		for (let hop = 0; hop < extraHops; hop++) {
+			furthest = this.orbits[furthest];
+			hops++;
+		}
+
+		while (this.orbits[nearest] !== this.orbits[furthest]) {
+			nearest = this.orbits[nearest];
+			furthest = this.orbits[furthest];
+			hops += 2;
+		}
+
+		return hops;
+	}
 }
 
 function runTests() {
@@ -73,17 +105,26 @@ function runTests() {
 		let checksum;
 		try {
 			checksum = map.checksum();
-			passed = checksum === test.checksum;
 		} catch {
 			checksum = -1;
-			passed = test.checksum === -1;
 		}
+
+		let transfers;
+		try {
+			transfers = map.transfers("YOU", "SAN");
+		} catch {
+			transfers = -1;
+		}
+
+		passed = checksum === test.checksum && transfers === test.transfers;
 
 		if (passed) {
 			numPasses++;
 		}
 
-		console.log(`Name: ${test.name} | Expected Output: ${test.checksum} | Actual Output: ${checksum} => ${passed ? "Passed!" : "Failed"}`);
+		console.log(`Name: ${test.name} => ${passed ? "Passed!" : "Failed"}
+Expected Checksum: ${test.checksum} | Checksum: ${checksum}
+Expected Transfers: ${test.transfers} | Transfers: ${transfers}`);
 	});
 
 	console.log(`${numPasses}/${tests.length} tests passed (${Math.round(numPasses / tests.length * 100)}%)`);
@@ -93,7 +134,8 @@ function runTests() {
 
 const map = new Map();
 
-const rawMapData = fs.readFileSync(`./tests/question.txt`);
+const rawMapData = fs.readFileSync(`./question.txt`);
 map.parse(rawMapData);
 
 console.log(map.checksum());
+console.log(map.transfers("YOU", "SAN"));

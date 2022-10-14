@@ -1,5 +1,5 @@
 [
-	{ "name": "example", "checksum": 42 },
-	{ "name": "unordered", "checksum": 42 },
-	{ "name": "invalid", "checksum": -1 }
+	{ "name": "example", "checksum": 54, "transfers": 4 },
+	{ "name": "unordered", "checksum": 54, "transfers": 4 },
+	{ "name": "invalid", "checksum": -1, "transfers": -1 }
 ]
